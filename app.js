@@ -8,6 +8,20 @@ const requestOptions = {
 };
 
 
+fetch(`https://api.geoapify.com/v1/ipinfo?apiKey=${apiKey}`, requestOptions)
+  .then((response) => response.json())
+  .then((result) => {
+      console.log("My IP Address:", result.ip);
+      console.log("My Approximate Location:", {
+          city: result.city?.name || "Unknown",
+          state: result.state?.name || "Unknown",
+          country: result.country?.name || "Unknown",
+          latitude: result.location?.lat,
+          longitude: result.location?.lon
+      });
+  })
+  .catch((error) => console.error("Error:", error));
+
 const presetSearchText = "264 Ryebank Road";
 const encodedText = encodeURIComponent(presetSearchText);
 
