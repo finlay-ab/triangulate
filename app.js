@@ -16,8 +16,8 @@ fetch(`https://api.geoapify.com/v1/ipinfo?apiKey=${apiKey}`, requestOptions)
           city: result.city?.name || "Unknown",
           state: result.state?.name || "Unknown",
           country: result.country?.name || "Unknown",
-          latitude: result.location?.lat,
-          longitude: result.location?.lon
+          latitude: result.location?.latitude || "Unknown",
+          longitude: result.location?.longitude || "Unknown"
       });
   })
   .catch((error) => console.error("Error:", error));
