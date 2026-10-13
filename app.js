@@ -37,11 +37,12 @@ const searchInput = document.getElementById("search-input");
 const resultsDropdown = document.getElementById("results-dropdown");
 const savedListContainer = document.getElementById("saved-addresses-list");
 const clearAllBtn = document.getElementById("clear-all-btn");
+const calculateBtn = document.getElementById("calculate-btn");
 
 let debounceTimer;
 let currentController = null;
 
-// help save and render
+// Helper to update session storage and refresh the UI list
 function saveAndRender() {
     sessionStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
     renderSavedList();
@@ -92,7 +93,7 @@ function renderDropdown(results) {
     });
 }
 
-// render list of addressees
+// Render the saved addresses onto the page with delete buttons
 function renderSavedList() {
     if (!savedListContainer) return;
     savedListContainer.innerHTML = "";
@@ -108,6 +109,7 @@ function renderSavedList() {
         deleteBtn.textContent = "Delete";
         deleteBtn.className = "btn btn-sm btn-danger";
         
+        // Delete individual item
         deleteBtn.addEventListener("click", () => {
             savedAddresses.splice(index, 1);
             saveAndRender();
@@ -119,6 +121,7 @@ function renderSavedList() {
     });
 }
 
+// Clear all button handler
 if (clearAllBtn) {
     clearAllBtn.addEventListener("click", () => {
         savedAddresses = [];
@@ -126,6 +129,17 @@ if (clearAllBtn) {
     });
 }
 
+// Verify we have at least 2 addresses before allowing navigation to midpoint page
+if (calculateBtn) {
+    calculateBtn.addEventListener("click", (event) => {
+        if (savedAddresses.length < 2) {
+            event.preventDefault();
+            alert("Please add at least 2 addresses to calculate a midpoint.");
+        }
+    });
+}
+
+// Initial render on page load
 renderSavedList();
 
 if (searchInput) {
