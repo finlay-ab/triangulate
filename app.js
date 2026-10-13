@@ -11,7 +11,9 @@ var userCountryCode = "";
 var userLatitude = "";
 var userLongitude = "";
 var biasParam = "";
-var savedAddresses = [];
+
+// Load saved addresses from session storage if any exist
+var savedAddresses = JSON.parse(sessionStorage.getItem("savedAddresses")) || [];
 var currentResults = [];
 
 // get ip location 
@@ -33,17 +35,27 @@ fetch(`https://api.geoapify.com/v1/ipinfo?apiKey=${apiKey}`, requestOptions)
 
 const searchInput = document.getElementById("search-input");
 const resultsDropdown = document.getElementById("results-dropdown");
+const savedListContainer = document.getElementById("saved-addresses-list");
+const clearAllBtn = document.getElementById("clear-all-btn");
+
 let debounceTimer;
 let currentController = null;
+
+// help save and render
+function saveAndRender() {
+    sessionStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
+    renderSavedList();
+    console.log("Current Saved Addresses List:", savedAddresses);
+}
 
 function selectAddress(item) {
     const addressText = item.formatted;
     console.log("Added to saved list:", addressText);
     
     savedAddresses.push(item);
-    console.log("Current Saved Addresses List:", savedAddresses);
+    saveAndRender();
     
-    searchInput.value = addressText;
+    searchInput.value = ""; // clear input after selecting
     clearDropdown();
 }
 
@@ -69,7 +81,7 @@ function renderDropdown(results) {
     results.forEach((item) => {
         const li = document.createElement("li");
         li.textContent = item.formatted;
-        li.style.padding = "8px";
+        li.className = "list-group-item list-group-item-action";
         li.style.cursor = "pointer";
 
         li.addEventListener("click", () => {
@@ -79,6 +91,42 @@ function renderDropdown(results) {
         resultsDropdown.appendChild(li);
     });
 }
+
+// render list of addressees
+function renderSavedList() {
+    if (!savedListContainer) return;
+    savedListContainer.innerHTML = "";
+
+    savedAddresses.forEach((item, index) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        
+        const textSpan = document.createElement("span");
+        textSpan.textContent = item.formatted;
+        
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.className = "btn btn-sm btn-danger";
+        
+        deleteBtn.addEventListener("click", () => {
+            savedAddresses.splice(index, 1);
+            saveAndRender();
+        });
+
+        li.appendChild(textSpan);
+        li.appendChild(deleteBtn);
+        savedListContainer.appendChild(li);
+    });
+}
+
+if (clearAllBtn) {
+    clearAllBtn.addEventListener("click", () => {
+        savedAddresses = [];
+        saveAndRender();
+    });
+}
+
+renderSavedList();
 
 if (searchInput) {
     searchInput.addEventListener("input", (event) => {
